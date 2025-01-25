@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-background-blur"
+version = "0.1.0"
+description = "A ComfyUI custom node for background blur effects"
+authors = [
+    {name = "moose-lab"}
+]
+license = {text = "BSD"}
+readme = "README.md"
+requires-python = ">=3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
