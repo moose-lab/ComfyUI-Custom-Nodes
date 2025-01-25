@@ -38,10 +38,7 @@ class BackgroundBlurNode:
             image = image.cpu().numpy()
         if len(image.shape) == 4:
             image = image[0]
-        
-        # Convert from CHW to HWC format
-        image = np.transpose(image, (1, 2, 0))
-        
+
         # Convert to uint8 for OpenCV processing
         image = (image * 255).astype(np.uint8)
         
@@ -56,14 +53,12 @@ class BackgroundBlurNode:
         mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
         result = np.where(mask == 255, image, blurred)
         
-        # Convert back to CHW format and normalize to 0-1 range
-        result = np.transpose(result, (2, 0, 1)).astype(np.float32) / 255.0
+        result = result.astype(np.float32) / 255.0
         
         # Convert to torch tensor
         result = torch.from_numpy(result).unsqueeze(0)
         
         return (result,)
-
 # Node registration
 NODE_CLASS_MAPPINGS = {
     "BackgroundBlur": BackgroundBlurNode
