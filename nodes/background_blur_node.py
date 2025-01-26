@@ -1,6 +1,11 @@
+import os
+import folder_paths
+
 import cv2
 import numpy as np
 import torch
+
+from huggingface_hub import hf_hub_download
 
 class BackgroundBlurNode:
     def __init__(self):
@@ -59,6 +64,98 @@ class BackgroundBlurNode:
         result = torch.from_numpy(result).unsqueeze(0)
         
         return (result,)
+
+AVAILABLE_MODELS = {
+    "RMBG-2.0": {
+        "type": "rmbg",
+        "repo_id": "briaai/RMBG-2.0",
+        "files": {
+            "config.json": "config.json",
+            "model.safetensors": "model.safetensors",
+            "birefnet.py": "birefnet.py",
+            "BiRefNet_config.py": "BiRefNet_config.py"
+        },
+        # models will be saved in models/RMBG/RMBG-2.0
+        "cache_dir": "RMBG-2.0"
+    }
+}    
+class BaseRMBGModelLoader:
+    def __init__(self):
+        self.model = None
+        self.base_cache_dir = os.path.join(folder_paths.models_dir, "RMBG")
+    
+    def get_cache_dir(self, model_name):
+        return os.path.join(self.base_cache_dir, 
+                            AVAILABLE_MODELS[model_name]['cache_dir'])
+
+    # check if model is cached
+    def check_model_cahce(self, model_name):
+        model_info = AVAILABLE_MODELS[model_name]
+        cache_dir = self.get_cache_dir(model_name)
+        # check if cache_dir exists
+        if not os.path.exists(cache_dir):
+            return False
+        
+        missing_file = {}
+        for file_name in model_info['files'].key():
+            if not os.path.exists(os.path.join(cache_dir, model_info['files'][file_name])):
+                missing_file[file_name] = model_info['files'][file_name]
+        # check if missing_file is empty
+        if len(missing_file):
+            return False
+        
+        return True
+    
+    def download_model(self, model_name):
+        model_info = AVAILABLE_MODELS[model_name]
+        cache_dir = self.get_cache_dir(model_name)
+        
+        try:
+            os.makedirs(cache_dir, exist_ok=True)
+            
+            for filename in model_info["files"].keys():
+                # Download the file by huggingface
+                hf_hub_download(
+                    repo_id=model_info["repo_id"],
+                    filename=filename,
+                    local_dir=cache_dir,
+                    local_dir_use_symlinks=False
+                )
+                    
+            return True
+            
+        except Exception as e:
+            print(e)
+            return False
+        
+    def clear_model(self):
+        try:
+            if self.model is not None:
+                # del the model's parameters gradient
+                if hasattr(self.model, 'parameters'):
+                    for param in self.model.parameters():
+                        if param.grad is not None:
+                            param.grad.zero_()
+                            del param.grad
+                
+                self.model.cpu()
+                # del the model
+                del self.model
+                self.model = None
+
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    torch.cuda.synchronize()
+                
+                import gc
+                gc.collect()
+
+                return True
+            
+        except Exception as e:
+            print(f"Error clearing model: {str(e)}")
+            return False
+    
 # Node registration
 NODE_CLASS_MAPPINGS = {
     "BackgroundBlur": BackgroundBlurNode
