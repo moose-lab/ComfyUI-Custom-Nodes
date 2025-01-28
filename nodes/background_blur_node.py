@@ -17,8 +17,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 class BackgroundBlurNode:
     def __init__(self):
         # default values
-        self.blur_radius = 15
-        self.threshold = 128
+        self.blur_radius = 30
+        self.threshold = 255
     
     @classmethod
     def INPUT_TYPES(s):
@@ -27,13 +27,13 @@ class BackgroundBlurNode:
                 "image": ("IMAGE",),
                 "model": (list(AVAILABLE_MODELS.keys()), {"default": "RMBG-2.0"}),
                 "blur_radius": ("INT", {
-                    "default": 15,
+                    "default": 30,
                     "min": 1,
                     "max": 100,
                     "step": 1
                 }),
                 "threshold": ("INT", {
-                    "default": 128,
+                    "default": 255,
                     "min": 0,
                     "max": 255,
                     "step": 1
@@ -191,6 +191,15 @@ class RMBGModel(BaseRMBGModelLoader):
         torch.set_float32_matmul_precision('high')
         self.model.to(device)
 
+    def preprocess_image(self, image, model_name):
+        images = [image] if not isinstance (image, list) else image
+        if not self.check_model_cache(model_name):
+            print(f"Model {model_name} not found in cache. Downloading...")
+            if not self.download_model(model_name):
+                raise RuntimeError(f"Failed to download model {model_name}")
+        print(f"Preprocess image and model {model_name} downloaded successfully")
+        return images
+
     def remove_background(self, background, model_name):
         try:
            self.load_model(model_name)
@@ -230,15 +239,28 @@ class RMBGModel(BaseRMBGModelLoader):
         except Exception as e:
            print(f"Error removing background: {str(e)}")
            return None
+    
+    def postprocess_image(self, image, masks):
+        if isinstance(masks, list):
+            masks = [m.convert("L") for m in masks if isinstance(m, Image.Image)]
+            mask = masks[0] if masks else None
+        elif isinstance(mask, Image.Image):
+            mask = mask.convert("L")
+
+        mask_tensor = pil2tensor(mask)
+        normalized_mask_tensor = torch.clamp(mask_tensor, 0, 1)
+
+        orig_image = tensor2pil(image)
+        orig_rgba = orig_image.convert("RGBA")
+        r, g, b, _ = orig_rgba.split()
+        res_image = Image.merge('RGBA', (r, g, b, mask))
+        result = pil2tensor(res_image)
+
+        return result, normalized_mask_tensor
         
     def process_image(self, image, model):
         try:
-            images = [image] if not isinstance (image, list) else image
-            if not self.check_model_cache(model):
-                print(f"Model {model} not found in cache. Downloading...")
-                if not self.download_model(model):
-                    raise RuntimeError(f"Failed to download model {model}")
-                print(f"Model {model} downloaded successfully")
+            images = self.preprocess_image(image, model)
 
             processed_images = []
             processed_masks = []
@@ -248,22 +270,10 @@ class RMBGModel(BaseRMBGModelLoader):
                 if not masks:
                     raise RuntimeError("Failed to generate masks")
 
-                if isinstance(masks, list):
-                    masks = [m.convert("L") for m in masks if isinstance(m, Image.Image)]
-                    mask = masks[0] if masks else None
-                elif isinstance(mask, Image.Image):
-                    mask = mask.convert("L")
+                foreground, mask = self.postprocess_image(img, masks)
 
-                mask_tensor = pil2tensor(mask)
-                mask_tensor = torch.clamp(mask_tensor, 0, 1)
-
-                orig_image = tensor2pil(img)
-                orig_rgba = orig_image.convert("RGBA")
-                r, g, b, _ = orig_rgba.split()
-                foreground = Image.merge('RGBA', (r, g, b, mask))
-
-                processed_images.append(pil2tensor(foreground))
-                processed_masks.append(mask_tensor)
+                processed_images.append(foreground)
+                processed_masks.append(mask)
 
             if processed_images and processed_masks:
                 return (torch.cat(processed_images, dim=0), torch.cat(processed_masks, dim=0))
