@@ -49,7 +49,9 @@ class BackgroundBlurNode:
         
         # Remove background and obtain the foreground and mask
         rmbg_model = RMBGModel()
-        foreground_all_channel, fg_mask = rmbg_model.process_image(image, model)
+        foreground_all_channel, fg_mask_0 = rmbg_model.process_image(image, model)
+        # fg_mask_0 is the mask of the original foreground image as output
+        fg_mask = fg_mask_0.copy()
         # RGBA2RGB
         foreground = foreground_all_channel[:, :, :, :3]
 
@@ -84,7 +86,7 @@ class BackgroundBlurNode:
         # Combine foreground and background by dot product
         result = foreground * fg_mask + background * (1 - fg_mask) 
         
-        return (result, fg_mask)
+        return (result, fg_mask_0)
 
 AVAILABLE_MODELS = {
     "RMBG-2.0": {
