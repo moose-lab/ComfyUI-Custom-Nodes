@@ -1,6 +1,17 @@
-from .nodes.background_blur_node import *
-from .nodes.svg_2_stl_node import *
+from .nodes.background_blur_node import NODE_CLASS_MAPPINGS as BACKGROUND_BLUR_NODE_CLASS_MAPPINGS
+from .nodes.background_blur_node import NODE_DISPLAY_NAME_MAPPINGS as BACKGROUND_BLUR_NODE_DISPLAY_NAME_MAPPINGS
+from .nodes.svg_2_stl_node import NODE_CLASS_MAPPINGS as SVG_2_STL_NODE_CLASS_MAPPINGS
+from .nodes.svg_2_stl_node import NODE_DISPLAY_NAME_MAPPINGS as SVG_2_STL_NODE_DISPLAY_NAME_MAPPINGS
 
-# Load all nodes and create the mappings
+# 合并所有节点的映射
+NODE_CLASS_MAPPINGS = {
+    **BACKGROUND_BLUR_NODE_CLASS_MAPPINGS,
+    **SVG_2_STL_NODE_CLASS_MAPPINGS,
+}
+
+NODE_DISPLAY_NAME_MAPPINGS = {
+    **BACKGROUND_BLUR_NODE_DISPLAY_NAME_MAPPINGS,
+    **SVG_2_STL_NODE_DISPLAY_NAME_MAPPINGS,
+}
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
