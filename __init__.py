@@ -1,4 +1,5 @@
 from .nodes.background_blur_node import *
+from .nodes.svg_2_stl_node import *
 
 # Load all nodes and create the mappings
 
