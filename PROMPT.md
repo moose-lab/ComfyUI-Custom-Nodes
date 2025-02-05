@@ -49,7 +49,7 @@ class CustomNodeName:
  
  2.1 INPUT_TYPES \
  **the type of the input:**
- ```json
+ ```markdown
     ("IMAGE",)        # image tensor [B, H, W, C] 
     ("LATENT",)       # latent space representation 
     ("MASK",)         # mask [H, W] 
@@ -59,7 +59,7 @@ class CustomNodeName:
     ("STRING", {"multiline": True}) # multiline text 
 ```
 **the parameter of the input:**
-```json
+```markdown
 {
     "default": 0.5,             # default value
     "min": 0.0,                 # min value
@@ -73,7 +73,7 @@ class CustomNodeName:
 
 2.2 RETURN_TYPES \
 **the type of the output:**
-```json
+```markdown
 RETURN_TYPES = ("IMAGE", "LATENT", "STRING")
 RETURN_NAMES = ("output image", "latent data", "output text")  # display name
 ```
@@ -182,17 +182,17 @@ class AdvancedConditioning:
 
 4.1 memory management
 ```python
-    # using the intermediate device to process
-    intermediate_device = comfy.model_management.intermediate_device()
+# using the intermediate device to process
+intermediate_device = comfy.model_management.intermediate_device()
 
-    # memory optimization mode
-    with torch.inference_mode():
-        # inference code
-        pass
+# memory optimization mode
+with torch.inference_mode():
+    # inference code
+    pass
 
-    # release the resource
-    del temporary_tensor
-    torch.cuda.empty_cache()
+# release the resource
+del temporary_tensor
+torch.cuda.empty_cache()
 ```
 
 4.2 multiple devices sypport
@@ -281,11 +281,9 @@ The registration is placed in the __init__.py outside the nodes directory.
 
 6.2 metadata notation
 ```markdown
-"""
 Author: Your Name
 Description: the comfyui custom node
 Version: 1.0.0
 Compatibility: ComfyUI 1.2+
 Dependencies: torchvision>=0.15
-"""
 ```
