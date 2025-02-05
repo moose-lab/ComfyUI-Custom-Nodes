@@ -50,50 +50,50 @@ class CustomNodeName:
  2.1 INPUT_TYPES \
  **the type of the input:**
  ```json
-        ("IMAGE",)        # image tensor [B, H, W, C] 
-        ("LATENT",)       # latent space representation 
-        ("MASK",)         # mask [H, W] 
-        ("MODEL",)        # latent model 
-        ("CLIP",)         # CLIP text encoder 
-        ("CONDITIONING",) # comdition data 
-        ("STRING", {"multiline": True}) # multiline text 
+    ("IMAGE",)        # image tensor [B, H, W, C] 
+    ("LATENT",)       # latent space representation 
+    ("MASK",)         # mask [H, W] 
+    ("MODEL",)        # latent model 
+    ("CLIP",)         # CLIP text encoder 
+    ("CONDITIONING",) # comdition data 
+    ("STRING", {"multiline": True}) # multiline text 
 ```
 **the parameter of the input:**
 ```json
-    {
-    "default": 0.5,                # default value
-    "min": 0.0,                    # min value
-    "max": 1.0,                    # max value 
-    "step": 0.01,                  # step value
-    "tooltip": "threshold",          # tooltip
-    "dynamicPrompts": True,        # dynamic prompts
-    "file_upload": True            # file upload
-    }
+{
+    "default": 0.5,             # default value
+    "min": 0.0,                 # min value
+    "max": 1.0,                 # max value 
+    "step": 0.01,               # step value
+    "tooltip": "threshold",     # tooltip
+    "dynamicPrompts": True,     # dynamic prompts
+    "file_upload": True         # file upload
+}
 ```
 
 2.2 RETURN_TYPES \
 **the type of the output:**
 ```json
-    RETURN_TYPES = ("IMAGE", "LATENT", "STRING")
-    RETURN_NAMES = ("output image", "latent data", "output text")  # display name
+RETURN_TYPES = ("IMAGE", "LATENT", "STRING")
+RETURN_NAMES = ("output image", "latent data", "output text")  # display name
 ```
 
 2.3 CATEGORY \
 **the category of the node:**
-```json
-    "Image/Transform"     # image transform
-    "Latent/Composite"    # latent composite
-    "Conditioning/Filter" # conditioning filter
-    "Model/Loaders"       # model loaders
-    "Sampling"            # sampling strategy
-    "Utilities"           # utilities
-    "Custom"              # custom
+```markdown
+"Image/Transform"     # image transform
+"Latent/Composite"    # latent composite
+"Conditioning/Filter" # conditioning filter
+"Model/Loaders"       # model loaders
+"Sampling"            # sampling strategy
+"Utilities"           # utilities
+"Custom"              # custom
 ```
 
 2.4 FUNCTION \
 **the function of the node:**
-```json
-    FUNCTION = "process" # this is the function name
+```markdown
+FUNCTION = "process" # this is the function name
 ```
 
 ## 3. Supported node types template
@@ -267,7 +267,7 @@ class PreviewNode:
 ## 6. Release rules
 
 6.1 directory structure
-```json
+```markdown
 confyui-custom-nodes/
 └── nodes/
     ├── image_processors.py
@@ -280,7 +280,7 @@ The development of custom nodes is generally defined in the nodes directory, and
 The registration is placed in the __init__.py outside the nodes directory.
 
 6.2 metadata notation
-```json
+```markdown
 """
 Author: Your Name
 Description: the comfyui custom node
