@@ -9,3 +9,14 @@ Ruled-based comfyui custom node template file, it'll be knowledge to llm, such a
 
 - [ ] deepfack comfyui custom node
 - [ ] voiceclone comfyui custom node
+
+Part II:
+
+## coderule.md
+Good code rules will provide a better project management and high effective code development whatever it will be conducted by AI or human.
+
+The constraints is the most important to be considered. such as in an English class, students use an iterative process where they write a draft, get feedback, and then rewrite to make improvements.
+
+TODO: 
+- [ ] LLM development guide for custom nodes
+- [ ] LLM inserts the custom nodes into unsatisfied workflow automatically
